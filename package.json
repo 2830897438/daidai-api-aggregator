@@ -1,0 +1,22 @@
+{
+  "name": "daidai-api-aggregator",
+  "version": "1.0.0",
+  "description": "DaiDai API keys aggregator extension for SillyTavern",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "sillytavern",
+    "extension",
+    "api",
+    "aggregator",
+    "openai"
+  ],
+  "author": "DaiDai",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^2.6.7",
+    "express": "^4.18.2"
+  }
+}

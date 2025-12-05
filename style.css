@@ -1,0 +1,254 @@
+/**
+ * DaiDai API Aggregator Extension Styles
+ */
+
+#daidai-aggregator-panel {
+    padding: 15px;
+    background: var(--SmartThemeBodyColor);
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+#daidai-aggregator-panel h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--SmartThemeEmColor);
+    border-bottom: 2px solid var(--SmartThemeBorderColor);
+    padding-bottom: 10px;
+}
+
+#daidai-aggregator-panel h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--SmartThemeEmColor);
+    font-size: 1.1em;
+}
+
+/* 表单样式 */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--SmartThemeEmColor);
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 4px;
+    background: var(--SmartThemeBlurTintColor);
+    color: var(--SmartThemeEmColor);
+}
+
+/* 分区样式 */
+.daidai-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--black70a);
+    border-radius: 6px;
+    border: 1px solid var(--SmartThemeBorderColor);
+}
+
+/* 信息行 */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: var(--SmartThemeBlurTintColor);
+    border-radius: 4px;
+}
+
+/* 余额卡片 */
+.balance-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.balance-item {
+    text-align: center;
+    padding: 15px;
+    background: var(--SmartThemeBlurTintColor);
+    border-radius: 6px;
+    border: 1px solid var(--SmartThemeBorderColor);
+}
+
+.balance-label {
+    font-size: 0.9em;
+    color: var(--grey70);
+    margin-bottom: 8px;
+}
+
+.balance-value {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--SmartThemeEmColor);
+}
+
+/* 代理状态 */
+.proxy-status {
+    padding: 10px;
+    margin-bottom: 10px;
+    background: var(--SmartThemeBlurTintColor);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-running {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.status-stopped {
+    color: #f44336;
+    font-weight: bold;
+}
+
+.proxy-url {
+    padding: 10px;
+    margin-bottom: 10px;
+    background: var(--SmartThemeBlurTintColor);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.proxy-url code {
+    flex: 1;
+    padding: 5px 10px;
+    background: var(--black30a);
+    border-radius: 3px;
+    font-family: monospace;
+    color: var(--SmartThemeEmColor);
+}
+
+.copy-btn {
+    padding: 5px 10px;
+    background: var(--SmartThemeBlurTintColor);
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--SmartThemeEmColor);
+    transition: background 0.2s;
+}
+
+.copy-btn:hover {
+    background: var(--SmartThemeShadowColor);
+}
+
+/* 按钮组 */
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.button-group button {
+    flex: 1;
+}
+
+/* Keys 列表 */
+.keys-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.key-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    background: var(--SmartThemeBlurTintColor);
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.key-item:hover {
+    background: var(--SmartThemeShadowColor);
+}
+
+.key-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.key-index {
+    display: inline-block;
+    min-width: 30px;
+    padding: 2px 8px;
+    background: var(--SmartThemeBorderColor);
+    border-radius: 3px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-align: center;
+}
+
+.key-value {
+    flex: 1;
+    font-family: monospace;
+    color: var(--grey70);
+    font-size: 0.9em;
+}
+
+.key-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9em;
+}
+
+.key-balance {
+    color: #4caf50;
+    font-weight: 500;
+}
+
+.key-used {
+    color: var(--grey70);
+}
+
+.no-keys {
+    text-align: center;
+    padding: 30px;
+    color: var(--grey70);
+    font-style: italic;
+}
+
+/* 滚动条样式 */
+.keys-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.keys-list::-webkit-scrollbar-track {
+    background: var(--black30a);
+    border-radius: 4px;
+}
+
+.keys-list::-webkit-scrollbar-thumb {
+    background: var(--SmartThemeBorderColor);
+    border-radius: 4px;
+}
+
+.keys-list::-webkit-scrollbar-thumb:hover {
+    background: var(--grey70);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .balance-card {
+        grid-template-columns: 1fr;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+}
