@@ -6,7 +6,7 @@
   "js": "index.js",
   "css": "style.css",
   "author": "DaiDai",
-  "version": "1.0.0",
+  "version": "5.0.0",
   "homePage": "https://api.daidaibird.top",
   "description": "聚合多个 API keys，提供统一的本地代理服务"
 }

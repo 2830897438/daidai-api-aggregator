@@ -131,7 +131,7 @@
             }
         } catch (error) {
             console.error('Sync keys error:', error);
-            showToast('代理未运行，请先运行 install.bat', 'error');
+            showToast('代理服务连接失败，请检查 SillyTavern 是否正常运行', 'error');
         }
     }
 
