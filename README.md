@@ -2,21 +2,20 @@
 
 一个用于 SillyTavern 的扩展，可以聚合多个 DaiDai API keys 并提供统一的本地代理服务，实现负载均衡和自动故障转移。
 
-**✨ 一次配置，前端控制！**
+**✨ 双击安装，永久生效！**
 
 ## 功能特性
 
-- ✅ **账号登录** - 使用 DaiDai 平台账号密码登录
-- ✅ **自动获取 Keys** - 自动获取账号下所有可用的 API keys
-- ✅ **余额显示** - 实时显示总余额和每个 key 的状态
-- ✅ **前端控制** - 在扩展面板点击按钮即可启动/停止代理
+- ✅ **双击安装** - 一次性安装，永久生效
+- ✅ **开机自启** - 代理服务开机自动启动（可选）
+- ✅ **前端控制** - 登录后自动同步 keys
 - ✅ **负载均衡** - 轮询使用所有可用的 API keys
-- ✅ **故障转移** - 自动跳过失败的 keys，并重试
+- ✅ **故障转移** - 自动跳过失败的 keys
 - ✅ **流式响应** - 完整支持 OpenAI 流式输出
 
 ---
 
-## 🚀 快速开始（2步安装）
+## 🚀 超简单安装（1步）
 
 ### 步骤 1: 安装扩展
 
@@ -26,40 +25,39 @@
 4. 粘贴：`https://github.com/2830897438/daidai-api-aggregator`
 5. 点击 **安装** 并 **启用扩展**
 
-### 步骤 2: 一次性配置后端
+### 步骤 2: 双击安装
 
-进入扩展安装目录，运行配置脚本：
+进入扩展安装目录，**双击** `install.bat`（Windows）：
 
-**Windows:**
-```cmd
-cd SillyTavern\public\scripts\extensions\third-party\daidai-api-aggregator
-node install-backend.js
+```
+SillyTavern\public\scripts\extensions\third-party\daidai-api-aggregator\install.bat
 ```
 
-**Linux/Mac:**
+**Linux/Mac 用户：**
 ```bash
 cd SillyTavern/public/scripts/extensions/third-party/daidai-api-aggregator
-node install-backend.js
+chmod +x install.sh
+./install.sh
 ```
 
-**配置脚本会自动：**
-- ✅ 找到 SillyTavern 的 server.js
-- ✅ 备份原文件
-- ✅ 添加后端配置代码
-- ✅ 完成！
+**安装脚本会自动：**
+- ✅ 安装依赖
+- ✅ 启动代理服务
+- ✅ （可选）设置开机自启动
 
-**然后重启 SillyTavern。**
+**完成！**
 
 ---
 
 ## 🎉 开始使用
 
-配置完成后，每次使用非常简单：
+安装完成后，每次使用非常简单：
 
-1. **登录** - 在扩展面板输入 DaiDai 账号密码，点击登录
-2. **启动代理** - 点击 **"启动代理"** 按钮（代理自动在后台启动）
-3. **配置 API** - 在 API 设置中使用：`http://localhost:5100/v1`
-4. **开始聊天** - API Key 随意填写（会被代理自动替换）
+1. **打开 SillyTavern**
+2. **登录** - 在扩展面板输入 DaiDai 账号密码
+3. **自动同步** - Keys 会自动同步到代理
+4. **配置 API** - 在 API 设置中使用：`http://localhost:5100/v1`
+5. **开始聊天** - API Key 随意填写（会被代理自动替换）
 
 **就这么简单！**
 
@@ -72,13 +70,13 @@ node install-backend.js
 ```
 ┌─────────────────┐
 │  SillyTavern   │
-│   扩展面板      │ ← 登录、查看余额、点击启动
+│   扩展面板      │ ← 登录、查看余额
 └────────┬────────┘
          │ HTTP
          ▼
 ┌─────────────────┐
-│ ST 后端集成代理  │ ← 负载均衡 + 故障转移
-│  (自动启动)     │    (点击按钮即可)
+│  独立代理守护进程 │ ← 负载均衡 + 故障转移
+│  (后台自启动)    │    (开机自动运行)
 └────────┬────────┘
          │
          │ 轮询使用
@@ -100,15 +98,14 @@ node install-backend.js
 
 ### 使用流程
 
-1. **一次性配置** - 运行 `node install-backend.js`（只需一次）
-2. **重启 SillyTavern** - 让配置生效
-3. **以后每次使用**：
-   - 打开扩展面板
+1. **一次性安装** - 双击 `install.bat`（只需一次）
+2. **以后每次使用**：
+   - 打开 SillyTavern
    - 登录账号
-   - 点击 "启动代理" 按钮
-   - 代理自动在 SillyTavern 后端启动！
+   - Keys 自动同步到代理
+   - 开始聊天！
 
-**无需手动运行任何脚本！**
+**无需手动运行任何后端命令！**
 
 ---
 
@@ -121,56 +118,77 @@ node install-backend.js
 http://localhost:5100/health
 ```
 
+### 手动同步 Keys
+
+在扩展面板点击 **"同步 Keys"** 按钮。
+
 ### 停止代理
 
-在扩展面板点击 **"停止代理"** 按钮。
+**Windows:**
+```
+双击: stop-daemon.bat
+```
 
-### 刷新余额
-
-点击 **"刷新数据"** 按钮。
-
-### 卸载后端配置
-
-如果需要移除后端配置：
-
+**Linux/Mac:**
 ```bash
-cd SillyTavern/public/scripts/extensions/third-party/daidai-api-aggregator
-node uninstall-backend.js
+# 如果设置了 systemd 服务
+sudo systemctl stop daidai-proxy
+
+# 如果手动启动
+pkill -f proxy-daemon.js
+```
+
+### 查看日志
+
+```
+proxy.log
+```
+
+### 卸载开机自启动
+
+**Windows:**
+删除文件：
+```
+%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\DaiDaiProxy.vbs
+```
+
+**Linux:**
+```bash
+sudo systemctl disable daidai-proxy
+sudo systemctl stop daidai-proxy
 ```
 
 ---
 
 ## 🐛 故障排除
 
-### Q: 点击"启动代理"没反应？
+### Q: 代理未运行？
 
 **解决方案：**
-1. 确认已运行 `node install-backend.js`
-2. 确认已重启 SillyTavern
-3. 打开浏览器控制台（F12）查看错误信息
-4. 检查 SillyTavern 服务器终端是否有 `[DaiDai]` 相关日志
+1. 确认已运行 `install.bat`
+2. 检查是否有错误消息
+3. 查看 `proxy.log` 日志文件
 
 ### Q: 提示 "node-fetch not found"？
 
 **解决方案：**
+在扩展目录运行：
 ```bash
-cd SillyTavern
-npm install node-fetch
+npm install
 ```
 
-### Q: 配置脚本找不到 SillyTavern？
+### Q: Keys 没有同步？
 
 **解决方案：**
-运行脚本时会提示输入 SillyTavern 根目录路径，手动输入完整路径即可。
+1. 确认代理正在运行（访问 http://localhost:5100/health）
+2. 点击 **"同步 Keys"** 按钮手动同步
+3. 检查浏览器控制台（F12）查看错误信息
 
-### Q: 如何确认后端配置成功？
+### Q: 如何确认代理运行成功？
 
 **解决方案：**
-重启 SillyTavern 后，在服务器终端应该看到：
-```
-✅ DaiDai API Aggregator extension loaded
-[DaiDai] Server endpoints registered
-```
+打开浏览器访问：`http://localhost:5100/health`
+如果返回 JSON 数据，说明代理正在运行。
 
 ---
 
@@ -181,12 +199,13 @@ daidai-api-aggregator/
 ├── manifest.json              # 扩展清单
 ├── index.js                   # 前端主文件
 ├── style.css                  # 样式文件
-├── server.js                  # 后端服务器代码
-├── install-backend.js         # 自动配置脚本
-├── uninstall-backend.js       # 卸载配置脚本
+├── proxy-daemon.js            # 代理守护进程（核心）
+├── install.bat                # Windows 安装脚本
+├── install.sh                 # Linux/Mac 安装脚本
+├── install-autostart.js       # 设置开机自启动
+├── stop-daemon.bat            # 停止代理（Windows）
 ├── package.json               # 依赖配置
-├── README.md                  # 主文档（本文件）
-└── QUICKSTART.md              # 快速开始指南
+└── README.md                  # 主文档（本文件）
 ```
 
 ---
@@ -195,7 +214,7 @@ daidai-api-aggregator/
 
 - 🔒 不要分享你的登录凭证
 - 🔒 代理服务器仅绑定到 `127.0.0.1`，外部无法访问
-- 🔒 配置脚本会自动备份原 server.js 文件
+- 🔒 Keys 缓存在本地文件 `.keys-cache.json`
 - 🔒 建议定期更换密码和 API keys
 
 ---
@@ -203,26 +222,29 @@ daidai-api-aggregator/
 ## 🛠️ 技术栈
 
 - **前端**: JavaScript (Vanilla), jQuery
-- **后端**: Node.js, Express
+- **后端**: Node.js, Express, node-fetch
 - **API**: RESTful, OpenAI Compatible
 
 ---
 
 ## 📝 更新日志
 
+### v4.0.0 (2024-12-05)
+
+- 🎉 **双击安装，永久生效**
+- ✨ 独立守护进程（proxy-daemon.js）
+- ✨ 开机自启动支持
+- ✨ 无需任何后端配置
+- ✨ 完全自动化的用户体验
+- 🎯 用户完全不需要在后端运行命令
+
 ### v3.0.0 (2024-12-05)
 
-- 🎉 **一键配置，前端控制**
-- ✨ 自动配置脚本 (install-backend.js)
-- ✨ 自动备份原文件
-- ✨ 点击按钮即可启动/停止代理
-- ✨ 无需手动运行任何脚本
-- 🎯 完美的用户体验
+- ✨ 自动配置脚本
 
 ### v2.0.0 (2024-12-05)
 
 - ✨ 独立代理服务器
-- ✨ 一键启动脚本
 
 ### v1.0.0 (2024-12-05)
 
@@ -239,4 +261,4 @@ daidai-api-aggregator/
 
 ---
 
-**享受一键启动的便利吧！** 🎉
+**享受双击安装的便利吧！** 🎉

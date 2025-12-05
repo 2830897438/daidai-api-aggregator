@@ -12,6 +12,7 @@
     // 配置
     const API_BASE = 'https://user.daidaibird.top';
     const PROXY_PORT = 5100;
+    const MANAGEMENT_PORT = 5101;
 
     // 状态管理
     let state = {
@@ -99,24 +100,23 @@
     }
 
     /**
-     * 启动本地代理服务器
+     * 同步 keys 到代理服务器
      */
-    async function startProxy() {
+    async function syncKeys() {
         if (state.apiKeys.length === 0) {
             showToast('请先登录并获取 API keys', 'error');
             return;
         }
 
         try {
-            // 调用 SillyTavern 后端 API 启动代理
-            const response = await fetch('/api/extensions/daidai-api-aggregator/start-proxy', {
+            // 同步 keys 到独立代理
+            const response = await fetch(`http://localhost:${MANAGEMENT_PORT}/update-keys`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    keys: state.apiKeys.map(k => k.api_key),
-                    port: PROXY_PORT
+                    keys: state.apiKeys.map(k => k.api_key)
                 })
             });
 
@@ -125,36 +125,19 @@
             if (data.success) {
                 state.proxyRunning = true;
                 updateUI();
-                showToast(`代理已启动: ${state.proxyUrl}`, 'success');
+                showToast(`Keys 已同步 (${data.count} 个)`, 'success');
             } else {
-                showToast(`启动失败: ${data.error}`, 'error');
+                showToast(`同步失败: ${data.error}`, 'error');
             }
         } catch (error) {
-            console.error('Start proxy error:', error);
-            showToast(`启动失败: ${error.message}`, 'error');
+            console.error('Sync keys error:', error);
+            showToast('代理未运行，请先运行 install.bat', 'error');
         }
     }
 
-    /**
-     * 停止代理服务器
-     */
-    async function stopProxy() {
-        try {
-            const response = await fetch('/api/extensions/daidai-api-aggregator/stop-proxy', {
-                method: 'POST'
-            });
+    // 保留 startProxy 作为别名
+    const startProxy = syncKeys;
 
-            const data = await response.json();
-
-            if (data.success) {
-                state.proxyRunning = false;
-                updateUI();
-                showToast('代理已停止', 'info');
-            }
-        } catch (error) {
-            console.error('Stop proxy error:', error);
-        }
-    }
 
     /**
      * 保存设置到本地存储
@@ -335,10 +318,7 @@
                         </div>
                         <div class="button-group">
                             <button id="daidai-start-proxy" class="menu_button menu_button_positive">
-                                <i class="fa-solid fa-play"></i> 启动代理
-                            </button>
-                            <button id="daidai-stop-proxy" class="menu_button menu_button_negative" style="display: none;">
-                                <i class="fa-solid fa-stop"></i> 停止代理
+                                <i class="fa-solid fa-sync"></i> 同步 Keys
                             </button>
                         </div>
                     </div>
@@ -408,11 +388,8 @@
             $(this).prop('disabled', false);
         });
 
-        // 启动代理
+        // 同步 Keys
         $('#daidai-start-proxy').on('click', startProxy);
-
-        // 停止代理
-        $('#daidai-stop-proxy').on('click', stopProxy);
 
         // 复制按钮
         $(document).on('click', '.copy-btn', function() {
@@ -450,15 +427,22 @@
      */
     async function checkProxyStatus() {
         try {
-            const response = await fetch('/api/extensions/daidai-api-aggregator/proxy-status');
+            const response = await fetch(`http://localhost:${MANAGEMENT_PORT}/status`, {
+                signal: AbortSignal.timeout(2000)
+            });
             const data = await response.json();
             if (data.running) {
                 state.proxyRunning = true;
+                // 如果已登录且有 keys，自动同步
+                if (state.apiKeys.length > 0) {
+                    await syncKeys();
+                }
                 updateUI();
             }
         } catch (error) {
-            // 代理未运行或后端未启动
+            // 代理未运行
             state.proxyRunning = false;
+            updateUI();
         }
     }
 
