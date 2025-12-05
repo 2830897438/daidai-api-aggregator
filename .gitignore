@@ -2,6 +2,9 @@
 node_modules/
 package-lock.json
 
+# Keys cache
+.keys-cache.json
+
 # Logs
 *.log
 npm-debug.log*

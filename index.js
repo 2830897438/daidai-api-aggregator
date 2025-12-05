@@ -12,6 +12,7 @@
     // 配置
     const API_BASE = 'https://user.daidaibird.top';
     const PROXY_PORT = 5100;
+    const MANAGEMENT_PORT = 5101;
 
     // 状态管理
     let state = {
@@ -99,7 +100,34 @@
     }
 
     /**
-     * 启动本地代理服务器
+     * 同步 keys 到独立代理服务器
+     */
+    async function syncKeysToProxy() {
+        if (state.apiKeys.length === 0) {
+            return { success: false, error: '没有可用的 API keys' };
+        }
+
+        try {
+            const response = await fetch(`http://localhost:${MANAGEMENT_PORT}/update-keys`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    keys: state.apiKeys.map(k => k.api_key)
+                })
+            });
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Sync keys error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * 启动代理（提示用户运行启动脚本）
      */
     async function startProxy() {
         if (state.apiKeys.length === 0) {
@@ -108,31 +136,53 @@
         }
 
         try {
-            // 调用 SillyTavern 后端 API 启动代理
-            const response = await fetch('/api/extensions/daidai-api-aggregator/start-proxy', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    keys: state.apiKeys.map(k => k.api_key),
-                    port: PROXY_PORT
-                })
-            });
+            // 检查代理是否已经在运行
+            const status = await checkProxyStatus();
 
-            const data = await response.json();
-
-            if (data.success) {
-                state.proxyRunning = true;
-                updateUI();
-                showToast(`代理已启动: ${state.proxyUrl}`, 'success');
+            if (status.running) {
+                // 代理已运行，同步 keys
+                const result = await syncKeysToProxy();
+                if (result.success) {
+                    state.proxyRunning = true;
+                    updateUI();
+                    showToast(`Keys 已同步到代理服务器 (${result.count} 个)`, 'success');
+                } else {
+                    showToast(`同步失败: ${result.error}`, 'error');
+                }
             } else {
-                showToast(`启动失败: ${data.error}`, 'error');
+                // 代理未运行，提示用户启动
+                showProxyStartGuide();
             }
         } catch (error) {
             console.error('Start proxy error:', error);
-            showToast(`启动失败: ${error.message}`, 'error');
+            showProxyStartGuide();
         }
+    }
+
+    /**
+     * 显示代理启动指南
+     */
+    function showProxyStartGuide() {
+        const extensionPath = 'public/scripts/extensions/third-party/daidai-api-aggregator';
+        const message = `
+请先启动代理服务器：
+
+Windows: 双击运行
+${extensionPath}/start-proxy.bat
+
+Linux/Mac: 在终端运行
+cd SillyTavern/${extensionPath}
+./start-proxy.sh
+
+启动后，点击"刷新状态"重试。
+        `.trim();
+
+        toastr.warning(message, '需要启动代理服务器', {
+            timeOut: 0,
+            extendedTimeOut: 0,
+            closeButton: true,
+            tapToDismiss: false
+        });
     }
 
     /**
@@ -140,7 +190,7 @@
      */
     async function stopProxy() {
         try {
-            const response = await fetch('/api/extensions/daidai-api-aggregator/stop-proxy', {
+            const response = await fetch(`http://localhost:${MANAGEMENT_PORT}/stop`, {
                 method: 'POST'
             });
 
@@ -153,6 +203,9 @@
             }
         } catch (error) {
             console.error('Stop proxy error:', error);
+            showToast('停止代理失败，可能已经停止', 'warning');
+            state.proxyRunning = false;
+            updateUI();
         }
     }
 
@@ -335,7 +388,10 @@
                         </div>
                         <div class="button-group">
                             <button id="daidai-start-proxy" class="menu_button menu_button_positive">
-                                <i class="fa-solid fa-play"></i> 启动代理
+                                <i class="fa-solid fa-play"></i> 同步 Keys
+                            </button>
+                            <button id="daidai-refresh-proxy-status" class="menu_button">
+                                <i class="fa-solid fa-sync"></i> 刷新状态
                             </button>
                             <button id="daidai-stop-proxy" class="menu_button menu_button_negative" style="display: none;">
                                 <i class="fa-solid fa-stop"></i> 停止代理
@@ -377,6 +433,12 @@
                 showToast('登录成功', 'success');
                 await fetchApiKeys();
                 updateUI();
+
+                // 检查代理是否在运行，自动同步keys
+                const proxyStatus = await checkProxyStatus();
+                if (proxyStatus.running) {
+                    showToast('Keys 已自动同步到代理服务器', 'success');
+                }
             } else {
                 showToast(result.error, 'error');
             }
@@ -408,8 +470,15 @@
             $(this).prop('disabled', false);
         });
 
-        // 启动代理
+        // 同步 Keys / 启动代理
         $('#daidai-start-proxy').on('click', startProxy);
+
+        // 刷新代理状态
+        $('#daidai-refresh-proxy-status').on('click', async function() {
+            $(this).prop('disabled', true);
+            await checkProxyStatus();
+            $(this).prop('disabled', false);
+        });
 
         // 停止代理
         $('#daidai-stop-proxy').on('click', stopProxy);
@@ -443,6 +512,9 @@
 
         // 检查代理状态
         checkProxyStatus();
+
+        // 启动状态监控
+        startProxyStatusMonitor();
     }
 
     /**
@@ -450,16 +522,40 @@
      */
     async function checkProxyStatus() {
         try {
-            const response = await fetch('/api/extensions/daidai-api-aggregator/proxy-status');
+            const response = await fetch(`http://localhost:${MANAGEMENT_PORT}/status`, {
+                method: 'GET',
+                signal: AbortSignal.timeout(2000) // 2秒超时
+            });
             const data = await response.json();
             if (data.running) {
                 state.proxyRunning = true;
+
+                // 如果有 keys，自动同步
+                if (state.apiKeys.length > 0) {
+                    await syncKeysToProxy();
+                }
+
                 updateUI();
+                return { running: true, stats: data.stats };
             }
         } catch (error) {
-            // 代理未运行或后端未启动
+            // 代理未运行
             state.proxyRunning = false;
+            updateUI();
         }
+        return { running: false };
+    }
+
+    /**
+     * 定期检查代理状态
+     */
+    function startProxyStatusMonitor() {
+        // 每5秒检查一次代理状态
+        setInterval(async () => {
+            if (state.token) {
+                await checkProxyStatus();
+            }
+        }, 5000);
     }
 
     // 注册扩展
