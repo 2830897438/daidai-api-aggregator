@@ -2,23 +2,21 @@
 
 一个用于 SillyTavern 的扩展，可以聚合多个 DaiDai API keys 并提供统一的本地代理服务，实现负载均衡和自动故障转移。
 
-**🎉 无需修改 SillyTavern 任何文件！**
+**✨ 一次配置，前端控制！**
 
 ## 功能特性
 
 - ✅ **账号登录** - 使用 DaiDai 平台账号密码登录
 - ✅ **自动获取 Keys** - 自动获取账号下所有可用的 API keys
 - ✅ **余额显示** - 实时显示总余额和每个 key 的状态
-- ✅ **本地代理** - 启动本地 OpenAI 格式的聚合代理服务器
+- ✅ **前端控制** - 在扩展面板点击按钮即可启动/停止代理
 - ✅ **负载均衡** - 轮询使用所有可用的 API keys
 - ✅ **故障转移** - 自动跳过失败的 keys，并重试
 - ✅ **流式响应** - 完整支持 OpenAI 流式输出
-- ✅ **健康检查** - 实时监控代理状态和 keys 可用性
-- ✅ **零配置** - 无需修改 SillyTavern 的任何文件
 
 ---
 
-## 🚀 快速开始（3步安装）
+## 🚀 快速开始（2步安装）
 
 ### 步骤 1: 安装扩展
 
@@ -28,52 +26,59 @@
 4. 粘贴：`https://github.com/2830897438/daidai-api-aggregator`
 5. 点击 **安装** 并 **启用扩展**
 
-### 步骤 2: 启动代理服务器
+### 步骤 2: 一次性配置后端
 
-找到扩展安装目录并运行启动脚本：
+进入扩展安装目录，运行配置脚本：
 
 **Windows:**
-```
-双击运行: SillyTavern\public\scripts\extensions\third-party\daidai-api-aggregator\start-proxy.bat
+```cmd
+cd SillyTavern\public\scripts\extensions\third-party\daidai-api-aggregator
+node install-backend.js
 ```
 
 **Linux/Mac:**
 ```bash
 cd SillyTavern/public/scripts/extensions/third-party/daidai-api-aggregator
-./start-proxy.sh
+node install-backend.js
 ```
 
-看到以下输出说明启动成功：
-```
-✅ OpenAI Proxy: http://localhost:5100/v1
-✅ Management API: http://localhost:5101
-```
+**配置脚本会自动：**
+- ✅ 找到 SillyTavern 的 server.js
+- ✅ 备份原文件
+- ✅ 添加后端配置代码
+- ✅ 完成！
 
-### 步骤 3: 登录并使用
-
-1. 在 SillyTavern 扩展面板中输入 DaiDai 账号密码
-2. 点击 **登录**
-3. 登录成功后，keys 会自动同步到代理服务器
-4. 在 API 设置中使用代理地址：`http://localhost:5100/v1`
-5. API Key 随意填写（会被代理自动替换）
-6. 开始聊天！
+**然后重启 SillyTavern。**
 
 ---
 
-## 📖 详细说明
+## 🎉 开始使用
+
+配置完成后，每次使用非常简单：
+
+1. **登录** - 在扩展面板输入 DaiDai 账号密码，点击登录
+2. **启动代理** - 点击 **"启动代理"** 按钮（代理自动在后台启动）
+3. **配置 API** - 在 API 设置中使用：`http://localhost:5100/v1`
+4. **开始聊天** - API Key 随意填写（会被代理自动替换）
+
+**就这么简单！**
+
+---
+
+## 📖 工作原理
 
 ### 架构设计
 
 ```
 ┌─────────────────┐
 │  SillyTavern   │
-│   扩展面板      │ ← 登录、查看余额、管理
+│   扩展面板      │ ← 登录、查看余额、点击启动
 └────────┬────────┘
          │ HTTP
          ▼
 ┌─────────────────┐
-│ 独立代理服务器   │ ← 负载均衡 + 故障转移
-│  (standalone)   │    (无需修改 ST)
+│ ST 后端集成代理  │ ← 负载均衡 + 故障转移
+│  (自动启动)     │    (点击按钮即可)
 └────────┬────────┘
          │
          │ 轮询使用
@@ -93,23 +98,21 @@ cd SillyTavern/public/scripts/extensions/third-party/daidai-api-aggregator
 └─────────────────┘
 ```
 
-### 工作流程
+### 使用流程
 
-1. **用户在扩展面板登录** → 获取所有 API keys
-2. **运行独立代理服务器** → 监听端口 5100(代理) 和 5101(管理)
-3. **扩展自动同步 keys** → 通过 5101 端口发送到代理
-4. **SillyTavern 发送请求** → 代理服务器轮询使用 keys
-5. **自动负载均衡** → 失败自动切换下一个 key
+1. **一次性配置** - 运行 `node install-backend.js`（只需一次）
+2. **重启 SillyTavern** - 让配置生效
+3. **以后每次使用**：
+   - 打开扩展面板
+   - 登录账号
+   - 点击 "启动代理" 按钮
+   - 代理自动在 SillyTavern 后端启动！
 
-### 为什么不需要修改 server.js？
-
-传统方案需要修改 `SillyTavern/server.js` 来注册后端路由，这对用户来说太复杂。
-
-**新方案**：使用完全独立的代理服务器程序，通过 HTTP API 与扩展通信，无需任何配置！
+**无需手动运行任何脚本！**
 
 ---
 
-## 🎯 常见操作
+## ⚙️ 常见操作
 
 ### 查看代理状态
 
@@ -118,95 +121,56 @@ cd SillyTavern/public/scripts/extensions/third-party/daidai-api-aggregator
 http://localhost:5100/health
 ```
 
-返回 JSON：
-```json
-{
-  "status": "ok",
-  "keys": {
-    "total": 4,
-    "available": 4,
-    "unavailable": 0
-  }
-}
-```
+### 停止代理
+
+在扩展面板点击 **"停止代理"** 按钮。
 
 ### 刷新余额
 
-点击扩展面板的 **"刷新数据"** 按钮
+点击 **"刷新数据"** 按钮。
 
-### 更换账号
+### 卸载后端配置
 
-点击 **"退出登录"** → 输入新账号 → 点击 **"登录"**
+如果需要移除后端配置：
 
-### 重启代理
-
-1. 在代理服务器终端按 `Ctrl+C` 停止
-2. 重新运行启动脚本
-
----
-
-## ⚙️ 配置选项
-
-### 修改代理端口
-
-编辑 `standalone-proxy.js`：
-```javascript
-const PROXY_PORT = 5100;       // OpenAI 代理端口
-const MANAGEMENT_PORT = 5101;  // 管理 API 端口
-```
-
-同时修改 `index.js`：
-```javascript
-const PROXY_PORT = 5100;
-const MANAGEMENT_PORT = 5101;
-```
-
-### 修改上游 API
-
-编辑 `standalone-proxy.js`：
-```javascript
-const OPENAI_BASE_URL = 'https://api.daidaibird.top/v1';
+```bash
+cd SillyTavern/public/scripts/extensions/third-party/daidai-api-aggregator
+node uninstall-backend.js
 ```
 
 ---
 
 ## 🐛 故障排除
 
-### Q: 扩展不显示？
+### Q: 点击"启动代理"没反应？
 
 **解决方案：**
-1. 确认扩展已安装到正确位置
-2. 刷新浏览器（Ctrl+F5）
-3. 重启 SillyTavern
+1. 确认已运行 `node install-backend.js`
+2. 确认已重启 SillyTavern
+3. 打开浏览器控制台（F12）查看错误信息
+4. 检查 SillyTavern 服务器终端是否有 `[DaiDai]` 相关日志
 
-### Q: 代理无法启动？
-
-**解决方案：**
-1. 确认 Node.js 已安装
-2. 检查端口 5100 和 5101 是否被占用
-3. 在扩展目录运行 `npm install` 安装依赖
-
-### Q: 提示 "Unexpected token '<'"？
-
-这是旧版本的错误！请更新到最新版本：
-1. 删除旧的扩展
-2. 重新从 URL 安装
-3. 按照新的安装步骤操作
-
-### Q: Keys 没有自动同步？
+### Q: 提示 "node-fetch not found"？
 
 **解决方案：**
-1. 确认代理服务器正在运行
-2. 点击 **"刷新状态"** 按钮
-3. 点击 **"同步 Keys"** 按钮手动同步
+```bash
+cd SillyTavern
+npm install node-fetch
+```
 
-### Q: 请求失败 / 连接超时？
+### Q: 配置脚本找不到 SillyTavern？
 
 **解决方案：**
-1. 检查代理状态（应该显示"运行中"）
-2. 确认 keys 有足够的余额
-3. 查看代理服务器终端日志
-4. 测试健康检查端点：`http://localhost:5100/health`
+运行脚本时会提示输入 SillyTavern 根目录路径，手动输入完整路径即可。
+
+### Q: 如何确认后端配置成功？
+
+**解决方案：**
+重启 SillyTavern 后，在服务器终端应该看到：
+```
+✅ DaiDai API Aggregator extension loaded
+[DaiDai] Server endpoints registered
+```
 
 ---
 
@@ -217,13 +181,12 @@ daidai-api-aggregator/
 ├── manifest.json              # 扩展清单
 ├── index.js                   # 前端主文件
 ├── style.css                  # 样式文件
-├── standalone-proxy.js        # 独立代理服务器（核心）
-├── start-proxy.bat            # Windows 启动脚本
-├── start-proxy.sh             # Linux/Mac 启动脚本
+├── server.js                  # 后端服务器代码
+├── install-backend.js         # 自动配置脚本
+├── uninstall-backend.js       # 卸载配置脚本
 ├── package.json               # 依赖配置
 ├── README.md                  # 主文档（本文件）
-├── QUICKSTART.md              # 快速开始指南
-└── .gitignore                 # Git 忽略文件
+└── QUICKSTART.md              # 快速开始指南
 ```
 
 ---
@@ -232,7 +195,7 @@ daidai-api-aggregator/
 
 - 🔒 不要分享你的登录凭证
 - 🔒 代理服务器仅绑定到 `127.0.0.1`，外部无法访问
-- 🔒 API keys 缓存在本地文件 `.keys-cache.json`
+- 🔒 配置脚本会自动备份原 server.js 文件
 - 🔒 建议定期更换密码和 API keys
 
 ---
@@ -247,21 +210,23 @@ daidai-api-aggregator/
 
 ## 📝 更新日志
 
+### v3.0.0 (2024-12-05)
+
+- 🎉 **一键配置，前端控制**
+- ✨ 自动配置脚本 (install-backend.js)
+- ✨ 自动备份原文件
+- ✨ 点击按钮即可启动/停止代理
+- ✨ 无需手动运行任何脚本
+- 🎯 完美的用户体验
+
 ### v2.0.0 (2024-12-05)
 
-- 🎉 **重大更新：零配置安装**
-- ✨ 独立代理服务器，无需修改 SillyTavern
-- ✨ 一键启动脚本（Windows/Linux/Mac）
-- ✨ 自动 keys 同步
-- ✨ 实时状态监控
-- 🐛 修复了需要修改 server.js 的问题
+- ✨ 独立代理服务器
+- ✨ 一键启动脚本
 
 ### v1.0.0 (2024-12-05)
 
 - ✨ 初始版本发布
-- ✅ 账号登录和 key 获取
-- ✅ 本地代理服务器
-- ✅ 负载均衡和故障转移
 
 ---
 
@@ -274,4 +239,4 @@ daidai-api-aggregator/
 
 ---
 
-**享受聚合 API keys 带来的便利吧！** 🎉
+**享受一键启动的便利吧！** 🎉
