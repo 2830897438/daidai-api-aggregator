@@ -15,7 +15,39 @@
 
 ## 安装方法
 
-### 1. 复制扩展文件
+### 🚀 方法 1: 通过 SillyTavern 扩展管理器安装（推荐）
+
+这是最简单的安装方法，只需几步即可完成：
+
+1. **打开 SillyTavern 扩展管理器**
+   - 点击顶部菜单的 **扩展** 图标（🧩）
+   - 点击 **"从 URL 安装"** 按钮
+
+2. **输入仓库 URL**
+   ```
+   https://github.com/2830897438/daidai-api-aggregator
+   ```
+
+3. **点击安装并启用扩展**
+
+4. **配置后端（重要！）**
+   - 编辑 `SillyTavern/server.js`，添加以下代码：
+   ```javascript
+   // DaiDai API Aggregator Extension
+   const daidaiAggregator = require('./public/scripts/extensions/third-party/daidai-api-aggregator/server.js');
+   const daidaiRouter = express.Router();
+   daidaiAggregator.registerEndpoints(daidaiRouter);
+   app.use('/api/extensions/daidai-api-aggregator', daidaiRouter);
+   ```
+   - 重启 SillyTavern
+
+📖 **详细步骤**: 查看 [SILLYTAVERN_INSTALL.md](./SILLYTAVERN_INSTALL.md)
+
+---
+
+### 📦 方法 2: 手动安装
+
+#### 1. 复制扩展文件
 
 将整个 `daidai` 文件夹复制到 SillyTavern 的扩展目录：
 
